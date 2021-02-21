@@ -1,0 +1,39 @@
+version: '3.2'
+
+services:
+
+  web:
+    image: yiisoftware/yii2-php:7.3-apache
+    container_name: moneylog_web
+    ports:
+      - 127.0.0.1:80:80
+    volumes:
+      # Re-use local composer cache via host-volume
+      - ~/.composer-docker/cache:/root/.composer/cache:delegated
+      # Mount source-code for development
+      - ./:/app
+      - ./docker/apache2:/etc/apache2/sites-available
+    networks:
+      - moneylog_net
+
+  db:
+    image: mysql:8
+    container_name: moneylog_db
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpass
+      - MYSQL_DATABASE=moneylogdb
+      - MYSQL_USER=moneylog
+      - MYSQL_PASSWORD=moneylogdbpass
+    volumes:
+      - ./docker/mysql:/etc/mysql/conf.d
+      - ./data/db:/var/lib/mysql
+    ports:
+      - 127.0.0.1:3306:3306
+    networks:
+      - moneylog_net
+
+networks:
+  moneylog_net:
+    driver: bridge
