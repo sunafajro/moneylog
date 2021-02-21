@@ -20,6 +20,7 @@ use yii\web\IdentityInterface;
  * @property integer $status
  * @property integer $created_at
  * @property integer $updated_at
+ * @property integer $deleted_at
  * @property string $password write-only password
  */
 class User extends ActiveRecord implements IdentityInterface
@@ -220,5 +221,56 @@ class User extends ActiveRecord implements IdentityInterface
     public function removePasswordResetToken()
     {
         $this->password_reset_token = null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function attributeLabels(): array
+    {
+        return [
+            'id' => 'ID',
+            'username' => 'Имя пользователя',
+            'email' => 'E-mail',
+            'status' => 'Статус',
+            'created_at' => 'Дата создания',
+            'updated_at' => 'Дата изменения',
+        ];
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function delete(): bool
+    {
+        // запрещаем удалять самого себя
+        if (\Yii::$app->user->identity->id !== $this->id) {
+            $this->status = static::STATUS_DELETED;
+            $this->deleted_at = time();
+            return $this->save('true', ['status', 'updated_at', 'deleted_at']);
+        }
+        return false;
+    }
+
+    /**
+     * @return string[]
+     */
+    public static function getStatusLabels(): array
+    {
+        return [
+            self::STATUS_ACTIVE => 'Активен',
+            self::STATUS_INACTIVE => 'Не активен',
+            self::STATUS_DELETED => 'Удален',
+        ];
+    }
+
+    /**
+     * @param string $value
+     * @return string
+     */
+    public static function getStatusLabel(string $value): string
+    {
+        $statuses = self::getStatusLabels();
+        return $statuses[$value] ?? '';
     }
 }

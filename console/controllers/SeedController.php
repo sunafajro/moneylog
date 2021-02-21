@@ -4,6 +4,7 @@
 namespace console\controllers;
 
 use common\models\User;
+use common\rbac\Permission;
 use yii\console\Controller;
 use yii\helpers\Console;
 
@@ -14,23 +15,22 @@ use yii\helpers\Console;
 class SeedController extends Controller
 {
     /**
-     * @param $username
-     * @param $email
-     * @param $password
+     * @param string $username
+     * @param string $email
+     * @param string $roleName
+     * @param string $password
      *
-     * @return bool
+     * @return int
      */
-    public function actionCreateUser($username, $email, $password): bool
+    public function actionCreateUser(
+        string $username = 'admin',
+        string $email = 'admin@site.local',
+        string $roleName = Permission::ROLE_ADMIN,
+        string $password = '12345'
+    ): int
     {
         try {
-            $user = User::findByUsername($username);
-            if (!empty($user)) {
-                throw new \Exception("Пользователь с таким username уже существует.");
-            }
-            $user = User::findByEmail($email);
-            if (!empty($user)) {
-                throw new \Exception("Пользователь с таким email уже существует.");
-            }
+            // добавление нового пользователя
             $user = new User([
                 'username' => $username,
                 'email' => $email,
@@ -40,6 +40,12 @@ class SeedController extends Controller
             if (!$user->save()) {
                 throw new \Exception('Не удалось создать пользователя.');
             }
+
+            // Присвоение роли
+            $auth = \Yii::$app->authManager;
+            $role = $auth->getRole($roleName);
+            $auth->assign($role, $user->id);
+
             Console::output('Пользователь успешно создан.');
             return 0;
         } catch (\Exception $e) {

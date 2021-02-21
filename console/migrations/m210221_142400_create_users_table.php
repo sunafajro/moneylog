@@ -26,6 +26,7 @@ class m210221_142400_create_users_table extends Migration
             'status' => $this->smallInteger()->unsigned()->notNull()->defaultValue(10),
             'created_at' => $this->integer()->unsigned()->notNull(),
             'updated_at' => $this->integer()->unsigned()->notNull(),
+            'deleted_at' => $this->integer()->unsigned(),
         ], $tableOptions);
     }
 
