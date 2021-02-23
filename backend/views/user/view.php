@@ -19,10 +19,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <div class="p-1">
+    <div class="pt-1 pb-1">
         <?php
             if (\Yii::$app->user->can(Permission::PERMISSION_USER_UPDATE_ANY)) {
-                echo Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']);
+                echo Html::a('Изменить', ['update', 'id' => $model->id], ['class' => 'btn btn-primary mr-1']);
             }
         if (\Yii::$app->user->can(Permission::PERMISSION_USER_DELETE_ANY)) {
             echo Html::a('Удалить', ['delete', 'id' => $model->id], [
@@ -41,6 +41,13 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'username',
             'email:email',
+            [
+                'label' => 'Роль',
+                'value' => function(User $user) {
+                    $role = $user->getRole();
+                    return $role->description ?? null;
+                }
+            ],
             'status' => [
                 'attribute' => 'status',
                 'value' => function(User $user) {

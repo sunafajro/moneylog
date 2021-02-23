@@ -2,11 +2,13 @@
 
 /**
  * @var View $this
- * @var User $model
+ * @var UserForm $model
  * @var ActiveForm $form
  */
 
+use common\models\forms\UserForm;
 use common\models\User;
+use common\rbac\Permission;
 use yii\helpers\Html;
 use yii\web\View;
 use yii\widgets\ActiveForm;
@@ -20,6 +22,10 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'username')->textInput(['maxlength' => true]) ?>
 
     <?= $form->field($model, 'email')->textInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'password')->passwordInput(['maxlength' => true]) ?>
+
+    <?= $form->field($model, 'role')->dropDownList(Permission::getRoles()) ?>
 
     <?= $form->field($model, 'status')->dropDownList(User::getStatusLabels()) ?>
 

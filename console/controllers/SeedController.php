@@ -36,7 +36,6 @@ class SeedController extends Controller
                 'email' => $email,
             ]);
             $user->setPassword($password);
-            $user->generatePasswordResetToken();
             if (!$user->save()) {
                 throw new \Exception('Не удалось создать пользователя.');
             }

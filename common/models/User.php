@@ -1,10 +1,12 @@
 <?php
 namespace common\models;
 
+use common\models\queries\UserQuery;
 use Yii;
 use yii\base\NotSupportedException;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
+use yii\rbac\Role;
 use yii\web\IdentityInterface;
 
 /**
@@ -63,8 +65,16 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * @return UserQuery
+     */
+    public static function find(): UserQuery
+    {
+        return new UserQuery(get_called_class(), []);
+    }
+
+    /**
      * @param $id
-     * return User|null
+     * @return User|null
      */
     public static function findIdentity($id): ?User
     {
@@ -241,6 +251,26 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * {@inheritDoc}
      */
+    public function beforeSave($insert): bool
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+        if ($insert) {
+            try {
+                $this->generatePasswordResetToken();
+                return true;
+            } catch (\Exception $e) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     public function delete(): bool
     {
         // запрещаем удалять самого себя
@@ -272,5 +302,20 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $statuses = self::getStatusLabels();
         return $statuses[$value] ?? '';
+    }
+
+    /**
+     * @return Role|null
+     */
+    public function getRole(): ?Role
+    {
+        $auth = \Yii::$app->authManager;
+        $roles = $auth->getRolesByUser($this->id);
+        if (!empty($roles)) {
+            $role = reset($roles);
+            return !empty($role) ? $role : null;
+        }
+
+        return null;
     }
 }

@@ -2,10 +2,10 @@
 
 /**
  * @var View $this
- * @var User $model
+ * @var UserForm $model
  */
 
-use common\models\User;
+use common\models\forms\UserForm;
 use yii\helpers\Html;
 use yii\web\View;
 

@@ -42,6 +42,13 @@ if (\Yii::$app->user->can(Permission::PERMISSION_USER_DELETE_ANY)) {
             'id',
             'username',
             'email:email',
+            [
+                'header' => 'Роль',
+                'value' => function(User $user) {
+                    $role = $user->getRole();
+                    return $role->description ?? null;
+                }
+            ],
             'status' => [
                 'attribute' => 'status',
                 'value' => function(User $user) {
@@ -77,7 +84,7 @@ if (\Yii::$app->user->can(Permission::PERMISSION_USER_DELETE_ANY)) {
                     },
                     'delete' => function($url, $model) {
                         return Html::a(
-                            Html::tag('i', '', ['class' => 'fas fa-trash', 'aria-hidden' => 'true']),
+                            IconHelper::icon('trash'),
                             $url,
                             ['title' => 'Удалить', 'data-method' => 'post']
                         );
